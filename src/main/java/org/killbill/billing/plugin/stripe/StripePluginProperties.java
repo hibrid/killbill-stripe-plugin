@@ -31,6 +31,7 @@ import org.killbill.billing.payment.plugin.api.PaymentPluginStatus;
 
 import com.google.common.base.Throwables;
 import com.stripe.exception.StripeException;
+import com.stripe.model.Address;
 import com.stripe.model.BankAccount;
 import com.stripe.model.Charge;
 import com.stripe.model.PaymentIntent;
@@ -65,6 +66,7 @@ public abstract class StripePluginProperties {
             additionalDataMap.put("card_fingerprint", card.getFingerprint());
             additionalDataMap.put("card_funding", card.getFunding());
             additionalDataMap.put("card_last4", card.getLast4());
+            additionalDataMap.put("card_id", card.getId());
         } else if (stripePaymentSource instanceof Source) {
             final Source stripeSource = (Source) stripePaymentSource;
             final Source.Card card = stripeSource.getCard();
@@ -81,6 +83,7 @@ public abstract class StripePluginProperties {
                 additionalDataMap.put("card_funding", card.getFunding());
                 additionalDataMap.put("card_last4", card.getLast4());
                 additionalDataMap.put("card_three_d_secure_usage_support", card.getThreeDSecure());
+                additionalDataMap.put("stripe_id", stripeSource.getId());
             }
             final AchDebit achDebit = stripeSource.getAchDebit();
             if (achDebit != null) {
@@ -141,6 +144,22 @@ public abstract class StripePluginProperties {
 
     public static Map<String, Object> toAdditionalDataMap(final PaymentMethod stripePaymentMethod) {
         final Map<String, Object> additionalDataMap = new HashMap<String, Object>();
+
+        // Set the billing address information
+        if(stripePaymentMethod.getBillingDetails() != null) {
+            final Address billingAddress = stripePaymentMethod.getBillingDetails().getAddress();
+            if(billingAddress != null) {
+                additionalDataMap.put("billing_details_address_city", billingAddress.getCity());
+                additionalDataMap.put("billing_details_address_country", billingAddress.getCountry());
+                additionalDataMap.put("billing_details_address_line1", billingAddress.getLine1());
+                additionalDataMap.put("billing_details_address_line2", billingAddress.getLine2());
+                additionalDataMap.put("billing_details_address_postal_code", billingAddress.getPostalCode());
+                additionalDataMap.put("billing_details_address_state", billingAddress.getState());
+            }
+            additionalDataMap.put("billing_details_email", stripePaymentMethod.getBillingDetails().getEmail());
+            additionalDataMap.put("billing_details_name", stripePaymentMethod.getBillingDetails().getName());
+            additionalDataMap.put("billing_details_phone", stripePaymentMethod.getBillingDetails().getPhone());
+        }
 
         final Card card = stripePaymentMethod.getCard();
         if (card != null) {

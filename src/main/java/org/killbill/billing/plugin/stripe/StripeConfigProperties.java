@@ -42,7 +42,7 @@ import com.stripe.Stripe;
 import com.stripe.net.RequestOptions;
 import com.stripe.net.RequestOptions.RequestOptionsBuilder;
 
-public class StripeConfigProperties {
+public final class StripeConfigProperties {
 
     private static final String PROPERTY_PREFIX = "org.killbill.billing.plugin.stripe.";
 
