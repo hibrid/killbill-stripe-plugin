@@ -432,7 +432,7 @@ public class StripePaymentPluginApi extends PluginPaymentPluginApi<StripeRespons
             params.put("name", account.getName());
             params.put("address", address);
             params.put("description", "created via KB");
-        
+
             // Stripe Customer creation
             logger.info("Creating customer in Stripe to be able to re-use the payment method");
             final Customer customer = Customer.create(params, requestOptions);
@@ -777,6 +777,8 @@ public class StripePaymentPluginApi extends PluginPaymentPluginApi<StripeRespons
         params.put("expand", Arrays.asList("setup_intent", "payment_intent"));
         params.put("success_url", PluginProperties.getValue("success_url", "https://example.com/success?sessionId={CHECKOUT_SESSION_ID}", customFields));
         params.put("cancel_url", PluginProperties.getValue("cancel_url", "https://example.com/cancel", customFields));
+        params.put("billing_address_collection",
+                PluginProperties.getValue("billing_address_collection", "auto", customFields));
         final StripeConfigProperties stripeConfigProperties = stripeConfigPropertiesConfigurationHandler.getConfigurable(context.getTenantId());
 
         try {
